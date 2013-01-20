@@ -1,0 +1,10 @@
+﻿<Window x:Class="Kinect1.HelloWorld_2.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wpfViewers="clr-namespace:Microsoft.Samples.Kinect.WpfViewers;assembly=Microsoft.Samples.Kinect.WpfViewers"
+        Title="MainWindow" Height="350" Width="525" Closing="WindowClosing">
+    <Grid>
+        <wpfViewers:KinectSensorChooser KinectSensorChanged="KinectSensorChanged" x:Name="sensorChooser" HorizontalAlignment="Left" Margin="92,130,0,0" VerticalAlignment="Top" Width="330" />
+        
+    </Grid>
+</Window>
