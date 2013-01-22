@@ -5,10 +5,13 @@ using System.Windows;
 using Microsoft.Kinect;
 using Utility;
 
-namespace Kinect1.HelloWorld
+namespace Kinect2.ColorStream
 {
 	public partial class MainWindow : Window, INotifyPropertyChanged
 	{
+		private KinectSensor _kinectSensor;
+		private string _message;
+
 		public MainWindow()
 		{
 			InitializeComponent();
@@ -24,9 +27,6 @@ namespace Kinect1.HelloWorld
 				PropertyChanged.Raise(() => Message);
 			}
 		}
-
-		private KinectSensor _kinectSensor;
-		private string _message;
 
 		private void MainWindowLoaded(object sender, RoutedEventArgs e)
 		{
@@ -77,19 +77,13 @@ namespace Kinect1.HelloWorld
 			}
 		}
 
-		private void Initialize()
-		{
-			if (_kinectSensor == null)
-				return;
-			_kinectSensor.Start();
-			Message = "Kinect connected";
-		}
-
 		private void Clean()
 		{
 			if (_kinectSensor == null)
 				return;
-			_kinectSensor.Stop();
+			if (_kinectSensor.IsRunning)
+				_kinectSensor.Stop();
+			_kinectSensor.AllFramesReady -= KinectSensorAllFramesReady;
 			_kinectSensor.Dispose();
 			_kinectSensor = null;
 		}
@@ -101,5 +95,6 @@ namespace Kinect1.HelloWorld
 			var handler = PropertyChanged;
 			if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
 		}
+
 	}
 }

@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kinect1.HelloWorld_2", "Kin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kinect1.HelloWorld", "Kinect1.HelloWorld\Kinect1.HelloWorld.csproj", "{8ED03682-E97A-4023-A6BB-E89769904742}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kinect2.ColorStream", "Kinect2.ColorStream\Kinect2.ColorStream.csproj", "{CCDBECAF-7DE5-4636-ACCD-E9771D0A68BA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{8ED03682-E97A-4023-A6BB-E89769904742}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8ED03682-E97A-4023-A6BB-E89769904742}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8ED03682-E97A-4023-A6BB-E89769904742}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCDBECAF-7DE5-4636-ACCD-E9771D0A68BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCDBECAF-7DE5-4636-ACCD-E9771D0A68BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCDBECAF-7DE5-4636-ACCD-E9771D0A68BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCDBECAF-7DE5-4636-ACCD-E9771D0A68BA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
