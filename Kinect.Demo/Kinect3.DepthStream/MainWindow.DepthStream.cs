@@ -1,5 +1,4 @@
-﻿using System;
-using System.Windows.Media;
+﻿using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Microsoft.Kinect;
 using Utility;
@@ -8,13 +7,7 @@ namespace Kinect3.DepthStream
 {
 	public partial class MainWindow
 	{
-		//todo: near vs far, skeleton on or off 
-
 		private ImageSource _imageSource;
-		const float MaxDepthDistance = 4095; // max value returned
-		const float MinDepthDistance = 850; // min value returned
-		const float MaxDepthDistanceOffset = MaxDepthDistance - MinDepthDistance;
-
 
 		public ImageSource ImageSource
 		{
@@ -32,12 +25,9 @@ namespace Kinect3.DepthStream
 			if (_kinectSensor == null)
 				return;
 			_kinectSensor.AllFramesReady += KinectSensorAllFramesReady;
-			_kinectSensor.DepthStream.Range = DepthRange.Near;
 			_kinectSensor.DepthStream.Enable(DepthImageFormat.Resolution320x240Fps30);
-			_kinectSensor.SkeletonStream.Enable();
+			//_kinectSensor.SkeletonStream.Enable();
 			_kinectSensor.Start();
-			_kinectSensor.SkeletonStream.EnableTrackingInNearRange = true;
-			_kinectSensor.SkeletonStream.TrackingMode = SkeletonTrackingMode.Seated;
 			Message = "Kinect connected";
 		}
 
@@ -78,57 +68,34 @@ namespace Kinect3.DepthStream
 				var player = depthData[depthIndex] & DepthImageFrame.PlayerIndexBitmask;
 				var depth = depthData[depthIndex] >> DepthImageFrame.PlayerIndexBitmaskWidth;
 
-				//.9M or 2.95'
 				if (depth <= 900)
 				{
-					//we are very close
 					pixels[colorIndex + blueIndex] = 255;
 					pixels[colorIndex + greenIndex] = 0;
 					pixels[colorIndex + redIndex] = 0;
 
 				}
-				// .9M - 2M or 2.95' - 6.56'
 				else if (depth > 900 && depth < 2000)
 				{
-					//we are a bit further away
 					pixels[colorIndex + blueIndex] = 0;
 					pixels[colorIndex + greenIndex] = 255;
 					pixels[colorIndex + redIndex] = 0;
 				}
-				// 2M+ or 6.56'+
 				else if (depth > 2000)
 				{
-					//we are the farthest
 					pixels[colorIndex + blueIndex] = 0;
 					pixels[colorIndex + greenIndex] = 0;
 					pixels[colorIndex + redIndex] = 255;
 				}
 
-				////equal coloring for monochromatic histogram
-				//var intensity = CalculateIntensityFromDepth(depth);
-				//pixels[colorIndex + blueIndex] = intensity;
-				//pixels[colorIndex + greenIndex] = intensity;
-				//pixels[colorIndex + redIndex] = intensity;
-
-				//Color all players "gold"
 				if (player > 0)
 				{
 					pixels[colorIndex + blueIndex] = Colors.Gold.B;
 					pixels[colorIndex + greenIndex] = Colors.Gold.G;
 					pixels[colorIndex + redIndex] = Colors.Gold.R;
 				}
-
 			}
-
 			return pixels;
 		}
-
-		public static byte CalculateIntensityFromDepth(int distance)
-		{
-			//formula for calculating monochrome intensity for histogram
-			return (byte)(255 - (255 * Math.Max(distance - MinDepthDistance, 0)
-				 / (MaxDepthDistanceOffset)));
-		}
-
 	}
 }
