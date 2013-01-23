@@ -4,6 +4,7 @@
         Title="MainWindow" Height="350" Width="525" Loaded="MainWindowLoaded"
         DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Grid>
-        <TextBlock Text="{Binding Message}" FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock Text="Hello World Sample" FontSize="30" VerticalAlignment="Top" HorizontalAlignment="Center"/>
+        <TextBlock Text="{Binding Message}" FontSize="30" Foreground="Red" VerticalAlignment="Center" HorizontalAlignment="Center"/>
     </Grid>
 </Window>
