@@ -51,7 +51,12 @@ namespace Kinect4.SkeletalTracking
 			{
 				var jointType = (JointType)Enum.Parse(typeof(JointType), name);
 				var coordinateMapper = new CoordinateMapper(_kinectSensor);
-				var skeletonPoint = skeleton.Joints[jointType].Position;
+				var joint = skeleton.Joints[jointType];
+
+				var skeletonPoint = joint.Position;
+				if(joint.TrackingState==JointTrackingState.NotTracked)
+					continue;
+
 				var colorPoint = coordinateMapper.MapSkeletonPointToColorPoint(skeletonPoint, ColorImageFormat.RgbResolution640x480Fps30);
 				if(!_ellipses.ContainsKey(jointType))
 				{

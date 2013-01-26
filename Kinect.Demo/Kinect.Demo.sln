@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kinect3.DepthStream", "Kine
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kinect4.SkeletalTracking", "Kinect4.SkeletalTracking\Kinect4.SkeletalTracking.csproj", "{C3E20854-82DB-43AF-A84A-2BF489702362}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kinect5.AudioFundamentals", "Kinect5.AudioFundamentals\Kinect5.AudioFundamentals.csproj", "{BC97AD96-1F5B-4DC6-947B-359EB8702E6F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +45,10 @@ Global
 		{C3E20854-82DB-43AF-A84A-2BF489702362}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C3E20854-82DB-43AF-A84A-2BF489702362}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C3E20854-82DB-43AF-A84A-2BF489702362}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC97AD96-1F5B-4DC6-947B-359EB8702E6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC97AD96-1F5B-4DC6-947B-359EB8702E6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC97AD96-1F5B-4DC6-947B-359EB8702E6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC97AD96-1F5B-4DC6-947B-359EB8702E6F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
