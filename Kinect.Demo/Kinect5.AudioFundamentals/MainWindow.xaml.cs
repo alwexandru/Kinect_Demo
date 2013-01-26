@@ -81,6 +81,8 @@ namespace Kinect5.AudioFundamentals
 		{
 			if (_kinectSensor == null)
 				return;
+			if(_kinectAudioSource!=null)
+				_kinectAudioSource.Stop();
 			if (_kinectSensor.IsRunning)
 				_kinectSensor.Stop();
 			_kinectSensor.Dispose();

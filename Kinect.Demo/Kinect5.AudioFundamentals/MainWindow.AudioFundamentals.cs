@@ -6,22 +6,24 @@ namespace Kinect5.AudioFundamentals
 	public partial class MainWindow
 	{
 		private double _beamAngle;
+		private KinectAudioSource _kinectAudioSource;
 
 		private void Initialize()
 		{
 			if (_kinectSensor == null)
 				return;
 
-			_kinectSensor.AudioSource.BeamAngleChanged += BeamAngleChanged;
-			_kinectSensor.AudioSource.SoundSourceAngleChanged += SoundSourceAngleChanged;
 			_kinectSensor.Start();
-			_kinectSensor.AudioSource.Start();
+			_kinectAudioSource = _kinectSensor.AudioSource;
+			_kinectAudioSource.Start();
+			_kinectAudioSource.BeamAngleChanged += BeamAngleChanged;
+			_kinectAudioSource.SoundSourceAngleChanged += SoundSourceAngleChanged;
 			Message = "Kinect connected";
 		}
 
 		void SoundSourceAngleChanged(object sender, SoundSourceAngleChangedEventArgs e)
 		{
-			BeamAngle = (_kinectSensor.AudioSource.SoundSourceAngle - KinectAudioSource.MinSoundSourceAngle)/
+			BeamAngle = (_kinectAudioSource.SoundSourceAngle - KinectAudioSource.MinSoundSourceAngle)/
 			            (KinectAudioSource.MaxSoundSourceAngle - KinectAudioSource.MinSoundSourceAngle);
 		}
 
@@ -38,7 +40,7 @@ namespace Kinect5.AudioFundamentals
 
 		void BeamAngleChanged(object sender, BeamAngleChangedEventArgs e)
 		{
-			BeamAngle = (_kinectSensor.AudioSource.BeamAngle - KinectAudioSource.MinBeamAngle)/
+			BeamAngle = (_kinectAudioSource.BeamAngle - KinectAudioSource.MinBeamAngle)/
 			            (KinectAudioSource.MaxBeamAngle - KinectAudioSource.MinBeamAngle);
 
 		}
