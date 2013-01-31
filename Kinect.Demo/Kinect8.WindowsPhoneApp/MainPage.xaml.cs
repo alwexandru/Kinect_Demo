@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Windows;
-using System.Windows.Media.Imaging;
+﻿using System.Windows;
 using Coding4Fun.Kinect.KinectService.Common;
 using Coding4Fun.Kinect.KinectService.PhoneClient;
 using Microsoft.Phone.Controls;
@@ -10,11 +7,7 @@ namespace Kinect8.WindowsPhoneApp
 {
 	public partial class MainPage : PhoneApplicationPage
 	{
-		private WriteableBitmap _outputBitmap;
-
 		private readonly ColorClient _colorClient;
-		private readonly DepthClient _depthClient;
-		private readonly SkeletonClient _skeletonClient;
 
 		public MainPage()
 		{
