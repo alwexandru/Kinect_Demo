@@ -29,6 +29,7 @@ namespace Kinect9.LightSaber
 		private Skeleton[] _skeletons;
 
 		public ColorImagePoint RightWrist { get; set; }
+		public ColorImagePoint RightElbow { get; set; }
 		public ColorImagePoint RightHand { get; set; }
 
 		void KinectSensorAllFramesReady(object sender, AllFramesReadyEventArgs e)
@@ -70,32 +71,35 @@ namespace Kinect9.LightSaber
 		private void DrawSaber(Skeleton skeleton)
 		{
 			var jointWrist = skeleton.Joints[JointType.WristRight];
-			if (jointWrist.TrackingState != JointTrackingState.Tracked)
-				return;
+			var jointElbow = skeleton.Joints[JointType.ElbowRight];
 			var jointHand = skeleton.Joints[JointType.HandRight];
-			if (jointHand.TrackingState != JointTrackingState.Tracked)
+
+			if ((jointWrist.TrackingState == JointTrackingState.NotTracked) ||
+				(jointElbow.TrackingState == JointTrackingState.NotTracked) ||
+				(jointHand.TrackingState == JointTrackingState.NotTracked))
 				return;
+
 			var mapper = new CoordinateMapper(_kinectSensor);
 
 			RightWrist = mapper.MapSkeletonPointToColorPoint(jointWrist.Position, ColorImageFormat.RgbResolution640x480Fps30); ;
+			RightElbow = mapper.MapSkeletonPointToColorPoint(jointElbow.Position, ColorImageFormat.RgbResolution640x480Fps30); ;
 			RightHand = mapper.MapSkeletonPointToColorPoint(jointHand.Position, ColorImageFormat.RgbResolution640x480Fps30); ;
 
-			if (RightHand.Y == RightWrist.Y)
+			if (RightElbow.Y == RightWrist.Y)
 				return;
-			var handAngleInRadian = Math.Atan((RightWrist.X - RightHand.X) / (RightWrist.Y - RightHand.Y));
+			var handAngleInRadian = Math.Atan((RightWrist.X - RightElbow.X) / (RightWrist.Y - RightElbow.Y));
 			var handAngleInDegrees = handAngleInRadian * 180 / Math.PI;
 			Message = handAngleInDegrees.ToString();
-			handAngleInDegrees = Math.Max(-90, handAngleInDegrees);
-			handAngleInDegrees = Math.Min(0, handAngleInDegrees);
-			if (handAngleInDegrees == 0 || handAngleInDegrees == -90)
-				handAngleInDegrees = -45;
+			if (handAngleInDegrees > 0)
+				handAngleInDegrees = handAngleInDegrees * -1;
+
 			const int magicFudgeNumber = -135;
-			var rotationAngleOffsetInDegrees = magicFudgeNumber + handAngleInDegrees;
+			var rotationAngleOffsetInDegrees = handAngleInDegrees + magicFudgeNumber;
 			var rotationAngleOffsetInRadians = rotationAngleOffsetInDegrees * Math.PI / 180;
 			Sabre.X1 = (RightWrist.X + RightHand.X) / 2;
 			Sabre.Y1 = (RightWrist.Y + RightHand.Y) / 2;
 
-			const int sabreLength = 200;
+			const int sabreLength = 250;
 			Sabre.X2 = Sabre.X1 + sabreLength * Math.Sin(rotationAngleOffsetInRadians);
 			Sabre.Y2 = Sabre.Y1 + sabreLength * Math.Cos(rotationAngleOffsetInRadians);
 		}
