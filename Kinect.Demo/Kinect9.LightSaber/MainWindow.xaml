@@ -7,9 +7,27 @@
     <StackPanel>
         <TextBlock Text="Skeletal Tracking Sample" FontSize="30" HorizontalAlignment="Center"/>
         <TextBlock Text="{Binding Message}" FontSize="30" Foreground="Red" HorizontalAlignment="Center"/>
-        <Canvas Height="480" Width="640" x:Name="SkeletonCanvas" Background="PaleGreen">
+        <Canvas Height="480" Width="640" x:Name="SkeletonCanvas" >
             <Image Height="480" Width="640" Source="{Binding ImageSource}"/>
-            <Line x:Name="line" Fill="Red" Stroke="RoyalBlue" StrokeThickness="5" />
+            <Line x:Name="Sabre" Stroke="LightBlue" StrokeThickness="5" >
+                <Line.Effect>
+                    <BlurEffect Radius="10" KernelType="Gaussian"/>
+                </Line.Effect>
+            </Line>
+            <Line X1="{Binding ElementName=Sabre, Path=X1, Mode=OneWay}" 
+                X2="{Binding ElementName=Sabre, Path=X2, Mode=OneWay}" 
+                Y1="{Binding ElementName=Sabre, Path=Y1, Mode=OneWay}" 
+                Y2="{Binding ElementName=Sabre, Path=Y2, Mode=OneWay}" 
+                Stroke="LightBlue" StrokeThickness="5" >
+                <Line.Effect>
+                    <BlurEffect Radius="3" KernelType="Gaussian"/>
+                </Line.Effect>
+            </Line>
+            <Line X1="{Binding ElementName=Sabre, Path=X1, Mode=OneWay}" 
+                X2="{Binding ElementName=Sabre, Path=X2, Mode=OneWay}" 
+                Y1="{Binding ElementName=Sabre, Path=Y1, Mode=OneWay}" 
+                Y2="{Binding ElementName=Sabre, Path=Y2, Mode=OneWay}" 
+                Stroke="RoyalBlue" StrokeThickness="3" />
         </Canvas>
     </StackPanel>
 </Window>
