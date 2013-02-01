@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Media;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Linq;
@@ -8,6 +10,8 @@ namespace Kinect9.LightSaber
 {
 	public partial class MainWindow
 	{
+		private const int SabrePositionCount = 20;
+
 		private void Initialize()
 		{
 			if (_kinectSensor == null)
@@ -22,15 +26,18 @@ namespace Kinect9.LightSaber
 				Prediction = 0.5f,
 				Smoothing = 0.5f
 			});
+			_previousSabrePositionX = new List<double>(SabrePositionCount);
 			_kinectSensor.Start();
 			Message = "Kinect connected";
 		}
 
-		private Skeleton[] _skeletons;
 
 		public ColorImagePoint RightWrist { get; set; }
 		public ColorImagePoint RightElbow { get; set; }
 		public ColorImagePoint RightHand { get; set; }
+
+		private Skeleton[] _skeletons;
+		private List<double> _previousSabrePositionX;
 
 		void KinectSensorAllFramesReady(object sender, AllFramesReadyEventArgs e)
 		{
@@ -102,6 +109,32 @@ namespace Kinect9.LightSaber
 			const int sabreLength = 250;
 			Sabre.X2 = Sabre.X1 + sabreLength * Math.Sin(rotationAngleOffsetInRadians);
 			Sabre.Y2 = Sabre.Y1 + sabreLength * Math.Cos(rotationAngleOffsetInRadians);
+			
+			if(_previousSabrePositionX.Count>=SabrePositionCount)
+				_previousSabrePositionX.RemoveAt(0);
+
+			if(_previousSabrePositionX.Any())
+			{
+				const int minimumDistanceForSoundEffect = 100;
+				if(Sabre.X2<_previousSabrePositionX.Last())
+				{
+					if (Sabre.X2 < _previousSabrePositionX.Min() - minimumDistanceForSoundEffect)
+						PlaySabreSound();
+				}
+				else
+				{
+					if (Sabre.X2 > _previousSabrePositionX.Max() + minimumDistanceForSoundEffect)
+						PlaySabreSound();
+				}
+			}
+			_previousSabrePositionX.Add(Sabre.X2);
+		}
+
+		private void PlaySabreSound()
+		{
+			var soundPlayer = new SoundPlayer("lightsabre.wav");
+			soundPlayer.Play();
+			_previousSabrePositionX.Clear();
 		}
 	}
 }
