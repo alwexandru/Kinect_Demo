@@ -34,6 +34,28 @@ namespace Kinect9.LightSaber
 			}
 		}
 
+		public int Player1Wins
+		{
+			get { return _player1Wins; }
+			set
+			{
+				if (value.Equals(_player1Wins)) return;
+				_player1Wins = value;
+				PropertyChanged.Raise(() => Player1Wins);
+			}
+		}
+
+		public int Player2Wins
+		{
+			get { return _player2Wins; }
+			set
+			{
+				if (value.Equals(_player2Wins)) return;
+				_player2Wins = value;
+				PropertyChanged.Raise(() => Player2Wins);
+			}
+		}
+
 		private void Initialize()
 		{
 			if (_kinectSensor == null)
@@ -51,6 +73,7 @@ namespace Kinect9.LightSaber
 			_previousSabre1PositionX = new List<double>();
 			_previousSabre2PositionX = new List<double>();
 			ResetPlayerStrength();
+			Player1Wins = Player2Wins = 0;
 			_kinectSensor.Start();
 			Message = "Kinect connected";
 		}
@@ -61,6 +84,8 @@ namespace Kinect9.LightSaber
 		private List<double> _previousSabre1PositionX, _previousSabre2PositionX;
 		private int _player1Strength, _player2Strength;
 		private DateTime _player1HitTime, _player2HitTime;
+		private int _player1Wins;
+		private int _player2Wins;
 
 		void KinectSensorAllFramesReady(object sender, AllFramesReadyEventArgs e)
 		{
@@ -102,7 +127,7 @@ namespace Kinect9.LightSaber
 			{
 				DrawSaber(trackedSkeleton[1], Sabre2, FightingHand.Left);
 				DetectSaberCollision();
-				DetectPlayerHit(trackedSkeleton[0],trackedSkeleton[1],Sabre1,Sabre2);
+				DetectPlayerHit(trackedSkeleton[0], trackedSkeleton[1], Sabre1, Sabre2);
 			}
 		}
 
@@ -165,10 +190,12 @@ namespace Kinect9.LightSaber
 					throw new ArgumentOutOfRangeException("fightingHand");
 			}
 			var rotationAngleOffsetInRadians = rotationAngleOffsetInDegrees * Math.PI / 180;
-			sabre.X1 = ((double)wrist.X + hand.X) / 2;
-			sabre.Y1 = ((double)wrist.Y + hand.Y) / 2;
 
-			const int sabreLength = 250;
+			//All measurements scaled to twice the size
+			sabre.X1 = 2 * ((double)wrist.X + hand.X) / 2;
+			sabre.Y1 = 2 * ((double)wrist.Y + hand.Y) / 2;
+
+			const int sabreLength = 350;
 			sabre.X2 = sabre.X1 + sabreLength * Math.Cos(rotationAngleOffsetInRadians);
 			sabre.Y2 = sabre.Y1 - sabreLength * Math.Sin(rotationAngleOffsetInRadians);
 
@@ -233,17 +260,17 @@ namespace Kinect9.LightSaber
 			var player2LeftShoulder = skeleton2.Joints[JointType.ShoulderLeft];
 			var player2Head = skeleton2.Joints[JointType.Head];
 
-			if(player1Head.TrackingState==JointTrackingState.NotTracked || player1RightShoulder.TrackingState==JointTrackingState.NotTracked
-				||player2Head.TrackingState==JointTrackingState.NotTracked || player2LeftShoulder.TrackingState==JointTrackingState.NotTracked)
+			if (player1Head.TrackingState == JointTrackingState.NotTracked || player1RightShoulder.TrackingState == JointTrackingState.NotTracked
+				|| player2Head.TrackingState == JointTrackingState.NotTracked || player2LeftShoulder.TrackingState == JointTrackingState.NotTracked)
 				return;
 
 			var coordinateMapper = new CoordinateMapper(_kinectSensor);
 
 			//player 1 got hit
-			if (sabre2.X2 < coordinateMapper.MapSkeletonPointToColorPoint(player1RightShoulder.Position, ColorFormat).X
-			    && sabre2.Y2 > coordinateMapper.MapSkeletonPointToColorPoint(player1Head.Position, ColorFormat).Y)
+			if (sabre2.X2 < 2 * coordinateMapper.MapSkeletonPointToColorPoint(player1RightShoulder.Position, ColorFormat).X
+				 && sabre2.Y2 > 2 * coordinateMapper.MapSkeletonPointToColorPoint(player1Head.Position, ColorFormat).Y)
 			{
-				if(_player1HitTime.AddSeconds(1)<DateTime.Now)
+				if (_player1HitTime.AddSeconds(1) < DateTime.Now)
 				{
 					Player1Strength--;
 					_player1HitTime = DateTime.Now;
@@ -251,18 +278,24 @@ namespace Kinect9.LightSaber
 			}
 
 			//player 2 got hit
-			if (sabre1.X2 > coordinateMapper.MapSkeletonPointToColorPoint(player2LeftShoulder.Position, ColorFormat).X
-			    && sabre1.Y2 > coordinateMapper.MapSkeletonPointToColorPoint(player2Head.Position, ColorFormat).Y)
+			if (sabre1.X2 > 2 * coordinateMapper.MapSkeletonPointToColorPoint(player2LeftShoulder.Position, ColorFormat).X
+				 && sabre1.Y2 > 2 * coordinateMapper.MapSkeletonPointToColorPoint(player2Head.Position, ColorFormat).Y)
 			{
-				if(_player2HitTime.AddSeconds(1)<DateTime.Now)
+				if (_player2HitTime.AddSeconds(1) < DateTime.Now)
 				{
 					Player2Strength--;
 					_player2HitTime = DateTime.Now;
 				}
 			}
 
-			if(Player1Strength<=0 || Player2Strength<=0)
+			if (Player1Strength <= 0 || Player2Strength <= 0)
+			{
+				if (Player1Strength > Player2Strength)
+					Player1Wins++;
+				else
+					Player2Wins++;
 				ResetPlayerStrength();
+			}
 		}
 	}
 

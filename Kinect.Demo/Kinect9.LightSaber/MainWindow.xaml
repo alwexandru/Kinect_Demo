@@ -5,17 +5,34 @@
         DataContext="{Binding RelativeSource={RelativeSource Self}}" 
         SizeToContent="WidthAndHeight" >
     <StackPanel>
-        <TextBlock Text="Skeletal Tracking Sample" FontSize="30" HorizontalAlignment="Center"/>
+        <TextBlock Text="Jedi Smash" FontSize="30" HorizontalAlignment="Center"/>
         <TextBlock Text="{Binding Message}" FontSize="30" Foreground="Red" HorizontalAlignment="Center"/>
-        <Canvas Height="480" Width="640" x:Name="SkeletonCanvas" >
-            <Image Height="480" Width="640" Source="{Binding ImageSource}"/>
+        <Canvas Height="960" Width="1280" x:Name="SkeletonCanvas" >
+            <Image Height="960" Width="1280" Source="{Binding ImageSource}"/>
             <Border CornerRadius="5" Canvas.Left="20" Canvas.Top="20" BorderThickness="5" BorderBrush="Red">
-                <ProgressBar Width="200" Height="30" Maximum="5" Minimum="0" Value="{Binding Player1Strength}" Foreground="IndianRed" />
+                <ProgressBar Width="400" Height="30" Maximum="5" Minimum="0" Value="{Binding Player1Strength}">
+                    <ProgressBar.Foreground>
+                        <LinearGradientBrush StartPoint="0,.5" EndPoint="1,.5">
+                            <GradientStop Color="DarkRed" Offset="0" />
+                            <GradientStop Color="IndianRed" Offset="1" />
+                        </LinearGradientBrush>
+                    </ProgressBar.Foreground>
+                </ProgressBar>
             </Border>
 
-            <Border CornerRadius="5" Canvas.Left="420" Canvas.Top="20" BorderThickness="5" BorderBrush="Blue">
-                <ProgressBar Width="200" Height="30" Maximum="5" Minimum="0" Value="{Binding Player2Strength}" Foreground="DeepSkyBlue"/>
+            <Border CornerRadius="5" Canvas.Left="850" Canvas.Top="20" BorderThickness="5" BorderBrush="Blue">
+                <ProgressBar Width="400" Height="30" Maximum="5" Minimum="0" Value="{Binding Player2Strength}">
+                    <ProgressBar.Foreground>
+                        <LinearGradientBrush StartPoint="0,.5" EndPoint="1,.5">
+                            <GradientStop Color="RoyalBlue" Offset="0" />
+                            <GradientStop Color="DeepSkyBlue" Offset="1" />
+                        </LinearGradientBrush>
+                    </ProgressBar.Foreground>
+                </ProgressBar>
             </Border>
+            
+            <TextBlock Text="{Binding Player1Wins, StringFormat='\{0\} Wins'}" Canvas.Left="40" Canvas.Top="10" FontSize="40" Foreground="White"/>
+            <TextBlock Text="{Binding Player2Wins, StringFormat='\{0\} Wins'}" Canvas.Left="870" Canvas.Top="10" FontSize="40" Foreground="White"/>
 
             <!--Sabre1-->
             <Line x:Name="Sabre1" Stroke="IndianRed" StrokeThickness="15" >
