@@ -4,6 +4,7 @@ using System.Media;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Linq;
+using System.Windows.Shapes;
 using Microsoft.Kinect;
 
 namespace Kinect9.LightSaber
@@ -19,25 +20,21 @@ namespace Kinect9.LightSaber
 			_kinectSensor.AllFramesReady += KinectSensorAllFramesReady;
 			_kinectSensor.ColorStream.Enable();
 			_kinectSensor.SkeletonStream.Enable(new TransformSmoothParameters
-				                                    {
-				Correction = 0.5f,
-				JitterRadius = 0.05f,
-				MaxDeviationRadius = 0.05f,
-				Prediction = 0.5f,
-				Smoothing = 0.5f
-			});
-			_previousSabrePositionX = new List<double>(SabrePositionCount);
+																{
+																	Correction = 0.5f,
+																	JitterRadius = 0.05f,
+																	MaxDeviationRadius = 0.05f,
+																	Prediction = 0.5f,
+																	Smoothing = 0.5f
+																});
+			_previousSabre1PositionX = new List<double>();
+			_previousSabre2PositionX = new List<double>();
 			_kinectSensor.Start();
 			Message = "Kinect connected";
 		}
 
-
-		public ColorImagePoint RightWrist { get; set; }
-		public ColorImagePoint RightElbow { get; set; }
-		public ColorImagePoint RightHand { get; set; }
-
 		private Skeleton[] _skeletons;
-		private List<double> _previousSabrePositionX;
+		private List<double> _previousSabre1PositionX, _previousSabre2PositionX;
 
 		void KinectSensorAllFramesReady(object sender, AllFramesReadyEventArgs e)
 		{
@@ -67,19 +64,35 @@ namespace Kinect9.LightSaber
 				frame.CopySkeletonDataTo(_skeletons);
 			}
 
-			var trackedSkeleton = _skeletons.FirstOrDefault(s => s.TrackingState == SkeletonTrackingState.Tracked);
+			var trackedSkeleton = _skeletons.Where(s => s.TrackingState == SkeletonTrackingState.Tracked).ToList();
 
-			if (trackedSkeleton == null)
+			if (!trackedSkeleton.Any())
 				return;
 
-			DrawSaber(trackedSkeleton);
+			DrawSaber(trackedSkeleton[0], Sabre1, FightingHand.Right);
+			if (trackedSkeleton.Count > 1)
+				DrawSaber(trackedSkeleton[1], Sabre2, FightingHand.Left);
 		}
 
-		private void DrawSaber(Skeleton skeleton)
+		private void DrawSaber(Skeleton skeleton, Line sabre, FightingHand fightingHand)
 		{
-			var jointWrist = skeleton.Joints[JointType.WristRight];
-			var jointElbow = skeleton.Joints[JointType.ElbowRight];
-			var jointHand = skeleton.Joints[JointType.HandRight];
+			Joint jointWrist, jointHand, jointElbow;
+
+			switch (fightingHand)
+			{
+				case FightingHand.Left:
+					jointWrist = skeleton.Joints[JointType.WristLeft];
+					jointElbow = skeleton.Joints[JointType.ElbowLeft];
+					jointHand = skeleton.Joints[JointType.HandLeft];
+					break;
+				case FightingHand.Right:
+					jointWrist = skeleton.Joints[JointType.WristRight];
+					jointElbow = skeleton.Joints[JointType.ElbowRight];
+					jointHand = skeleton.Joints[JointType.HandRight];
+					break;
+				default:
+					throw new ArgumentOutOfRangeException("fightingHand");
+			}
 
 			if ((jointWrist.TrackingState == JointTrackingState.NotTracked) ||
 				(jointElbow.TrackingState == JointTrackingState.NotTracked) ||
@@ -88,63 +101,85 @@ namespace Kinect9.LightSaber
 
 			var mapper = new CoordinateMapper(_kinectSensor);
 
-			RightWrist = mapper.MapSkeletonPointToColorPoint(jointWrist.Position, ColorImageFormat.RgbResolution640x480Fps30); 
-			RightElbow = mapper.MapSkeletonPointToColorPoint(jointElbow.Position, ColorImageFormat.RgbResolution640x480Fps30);
-			RightHand = mapper.MapSkeletonPointToColorPoint(jointHand.Position, ColorImageFormat.RgbResolution640x480Fps30);
+			var wrist = mapper.MapSkeletonPointToColorPoint(jointWrist.Position, ColorImageFormat.RgbResolution640x480Fps30);
+			var elbow = mapper.MapSkeletonPointToColorPoint(jointElbow.Position, ColorImageFormat.RgbResolution640x480Fps30);
+			var hand = mapper.MapSkeletonPointToColorPoint(jointHand.Position, ColorImageFormat.RgbResolution640x480Fps30);
 
 			double handAngleInDegrees;
-			if (RightElbow.X == RightWrist.X)
+			if (elbow.X == wrist.X)
 				handAngleInDegrees = 0;
 			else
 			{
-				var handAngleInRadian = Math.Atan((double)(RightElbow.Y - RightWrist.Y)/(RightWrist.X - RightElbow.X));
-				handAngleInDegrees = handAngleInRadian*180/Math.PI;
+				var handAngleInRadian = Math.Atan((double)(elbow.Y - wrist.Y) / (wrist.X - elbow.X));
+				handAngleInDegrees = handAngleInRadian * 180 / Math.PI;
 			}
 
-			//Message = string.Format("{0}, {1}, {2}", RightElbow.Y, RightWrist.Y, handAngleInDegrees.ToString());
-
-			if (handAngleInDegrees < 0 && RightWrist.X < RightElbow.X)
+			if (( fightingHand==FightingHand.Right && (wrist.X < elbow.X ))
+			    || (fightingHand==FightingHand.Left && (wrist.X<elbow.X || wrist.Y>elbow.Y)))
 				handAngleInDegrees = 180 + handAngleInDegrees;
+			//Message = string.Format("{0}, {1}, {2}", elbow.Y, wrist.Y, handAngleInDegrees.ToString());	
 
 			const int magicFudgeNumber = 45;
-			var rotationAngleOffsetInDegrees = handAngleInDegrees + magicFudgeNumber;
+			double rotationAngleOffsetInDegrees;
+			switch (fightingHand)
+			{
+				case FightingHand.Left:
+					rotationAngleOffsetInDegrees = handAngleInDegrees - magicFudgeNumber;
+					break;
+				case FightingHand.Right:
+					rotationAngleOffsetInDegrees = handAngleInDegrees + magicFudgeNumber;
+					break;
+				default:
+					throw new ArgumentOutOfRangeException("fightingHand");
+			}
 			var rotationAngleOffsetInRadians = rotationAngleOffsetInDegrees * Math.PI / 180;
-			Sabre.X1 = ((double)RightWrist.X + RightHand.X) / 2;
-			Sabre.Y1 = ((double)RightWrist.Y + RightHand.Y) / 2;
+			sabre.X1 = ((double)wrist.X + hand.X) / 2;
+			sabre.Y1 = ((double)wrist.Y + hand.Y) / 2;
 
 			const int sabreLength = 250;
-			Sabre.X2 = Sabre.X1 + sabreLength * Math.Cos(rotationAngleOffsetInRadians);
-			Sabre.Y2 = Sabre.Y1 - sabreLength * Math.Sin(rotationAngleOffsetInRadians);
+			sabre.X2 = sabre.X1 + sabreLength * Math.Cos(rotationAngleOffsetInRadians);
+			sabre.Y2 = sabre.Y1 - sabreLength * Math.Sin(rotationAngleOffsetInRadians);
 
-			if (_previousSabrePositionX.Count >= SabrePositionCount)
-				_previousSabrePositionX.RemoveAt(0);
 
-			PlaySabreSoundOnWave();
-			_previousSabrePositionX.Add(Sabre.X2);
+			PlaySabreSoundOnWave(sabre, fightingHand==FightingHand.Right?_previousSabre1PositionX:_previousSabre2PositionX);
 		}
 
-		private void PlaySabreSoundOnWave()
+		private void PlaySabreSoundOnWave(Line sabre, List<double> previousPositions)
 		{
-			if (!_previousSabrePositionX.Any()) return;
+			if(!previousPositions.Any())
+			{
+				previousPositions.Add(sabre.X2);
+				return;
+			}
+
+			if (previousPositions.Count >= SabrePositionCount)
+				previousPositions.RemoveAt(0);
 
 			const int minimumDistanceForSoundEffect = 100;
-			if (Sabre.X2 < _previousSabrePositionX.Last())
+			if (sabre.X2 < previousPositions.Last())
 			{
-				if (Sabre.X2 < _previousSabrePositionX.Min() - minimumDistanceForSoundEffect)
-					PlaySabreSound();
+				if (sabre.X2 < (previousPositions.Min() - minimumDistanceForSoundEffect))
+					PlaySabreSound(previousPositions);
 			}
 			else
 			{
-				if (Sabre.X2 > _previousSabrePositionX.Max() + minimumDistanceForSoundEffect)
-					PlaySabreSound();
+				if (sabre.X2 >(previousPositions.Max() + minimumDistanceForSoundEffect))
+					PlaySabreSound(previousPositions);
 			}
+			previousPositions.Add(sabre.X2);
 		}
 
-		private void PlaySabreSound()
+		private void PlaySabreSound(List<double> previousPositions)
 		{
 			var soundPlayer = new SoundPlayer("lightsabre.wav");
 			soundPlayer.Play();
-			_previousSabrePositionX.Clear();
+			previousPositions.Clear();
 		}
+	}
+
+	enum FightingHand
+	{
+		Left,
+		Right
 	}
 }
