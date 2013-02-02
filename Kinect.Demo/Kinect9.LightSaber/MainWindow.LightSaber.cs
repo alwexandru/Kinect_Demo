@@ -18,8 +18,8 @@ namespace Kinect9.LightSaber
 				return;
 			_kinectSensor.AllFramesReady += KinectSensorAllFramesReady;
 			_kinectSensor.ColorStream.Enable();
-			_kinectSensor.SkeletonStream.Enable(new TransformSmoothParameters()
-			{
+			_kinectSensor.SkeletonStream.Enable(new TransformSmoothParameters
+				                                    {
 				Correction = 0.5f,
 				JitterRadius = 0.05f,
 				MaxDeviationRadius = 0.05f,
@@ -88,46 +88,53 @@ namespace Kinect9.LightSaber
 
 			var mapper = new CoordinateMapper(_kinectSensor);
 
-			RightWrist = mapper.MapSkeletonPointToColorPoint(jointWrist.Position, ColorImageFormat.RgbResolution640x480Fps30); ;
-			RightElbow = mapper.MapSkeletonPointToColorPoint(jointElbow.Position, ColorImageFormat.RgbResolution640x480Fps30); ;
-			RightHand = mapper.MapSkeletonPointToColorPoint(jointHand.Position, ColorImageFormat.RgbResolution640x480Fps30); ;
+			RightWrist = mapper.MapSkeletonPointToColorPoint(jointWrist.Position, ColorImageFormat.RgbResolution640x480Fps30); 
+			RightElbow = mapper.MapSkeletonPointToColorPoint(jointElbow.Position, ColorImageFormat.RgbResolution640x480Fps30);
+			RightHand = mapper.MapSkeletonPointToColorPoint(jointHand.Position, ColorImageFormat.RgbResolution640x480Fps30);
 
-			if (RightElbow.Y == RightWrist.Y)
-				return;
-			var handAngleInRadian = Math.Atan((RightWrist.X - RightElbow.X) / (RightWrist.Y - RightElbow.Y));
-			var handAngleInDegrees = handAngleInRadian * 180 / Math.PI;
-			Message = handAngleInDegrees.ToString();
-			if (handAngleInDegrees > 0)
-				handAngleInDegrees = handAngleInDegrees * -1;
+			double handAngleInDegrees;
+			if (RightElbow.X == RightWrist.X)
+				handAngleInDegrees = 0;
+			else
+			{
+				var handAngleInRadian = Math.Atan((double)(RightElbow.Y - RightWrist.Y)/(RightWrist.X - RightElbow.X));
+				handAngleInDegrees = handAngleInRadian*180/Math.PI;
+			}
 
-			const int magicFudgeNumber = -135;
-			var rotationAngleOffsetInDegrees = handAngleInDegrees + magicFudgeNumber;
+			//Message = string.Format("{0}, {1}, {2}",RightElbow.Y, RightWrist.Y, handAngleInDegrees.ToString());
+
+			const int magicFudgeNumber = 90;
+			var rotationAngleOffsetInDegrees = handAngleInDegrees - magicFudgeNumber;
 			var rotationAngleOffsetInRadians = rotationAngleOffsetInDegrees * Math.PI / 180;
-			Sabre.X1 = (RightWrist.X + RightHand.X) / 2;
-			Sabre.Y1 = (RightWrist.Y + RightHand.Y) / 2;
+			Sabre.X1 = ((double)RightWrist.X + RightHand.X) / 2;
+			Sabre.Y1 = ((double)RightWrist.Y + RightHand.Y) / 2;
 
 			const int sabreLength = 250;
-			Sabre.X2 = Sabre.X1 + sabreLength * Math.Sin(rotationAngleOffsetInRadians);
-			Sabre.Y2 = Sabre.Y1 + sabreLength * Math.Cos(rotationAngleOffsetInRadians);
-			
-			if(_previousSabrePositionX.Count>=SabrePositionCount)
+			Sabre.X2 = Sabre.X1 - sabreLength * Math.Cos(rotationAngleOffsetInRadians);
+			Sabre.Y2 = Sabre.Y1 + sabreLength * Math.Sin(rotationAngleOffsetInRadians);
+
+			if (_previousSabrePositionX.Count >= SabrePositionCount)
 				_previousSabrePositionX.RemoveAt(0);
 
-			if(_previousSabrePositionX.Any())
-			{
-				const int minimumDistanceForSoundEffect = 100;
-				if(Sabre.X2<_previousSabrePositionX.Last())
-				{
-					if (Sabre.X2 < _previousSabrePositionX.Min() - minimumDistanceForSoundEffect)
-						PlaySabreSound();
-				}
-				else
-				{
-					if (Sabre.X2 > _previousSabrePositionX.Max() + minimumDistanceForSoundEffect)
-						PlaySabreSound();
-				}
-			}
+			PlaySabreSoundOnWave();
 			_previousSabrePositionX.Add(Sabre.X2);
+		}
+
+		private void PlaySabreSoundOnWave()
+		{
+			if (!_previousSabrePositionX.Any()) return;
+
+			const int minimumDistanceForSoundEffect = 100;
+			if (Sabre.X2 < _previousSabrePositionX.Last())
+			{
+				if (Sabre.X2 < _previousSabrePositionX.Min() - minimumDistanceForSoundEffect)
+					PlaySabreSound();
+			}
+			else
+			{
+				if (Sabre.X2 > _previousSabrePositionX.Max() + minimumDistanceForSoundEffect)
+					PlaySabreSound();
+			}
 		}
 
 		private void PlaySabreSound()
