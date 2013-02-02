@@ -56,6 +56,17 @@ namespace Kinect9.LightSaber
 			}
 		}
 
+		public bool GameMode
+		{
+			get { return _gameMode; }
+			set
+			{
+				if (value.Equals(_gameMode)) return;
+				_gameMode = value;
+				PropertyChanged.Raise(() => GameMode);
+			}
+		}
+
 		private void Initialize()
 		{
 			if (_kinectSensor == null)
@@ -74,6 +85,7 @@ namespace Kinect9.LightSaber
 			_previousSabre2PositionX = new List<double>();
 			ResetPlayerStrength();
 			Player1Wins = Player2Wins = 0;
+			GameMode = false;
 			_kinectSensor.Start();
 			Message = "Kinect connected";
 		}
@@ -86,6 +98,7 @@ namespace Kinect9.LightSaber
 		private DateTime _player1HitTime, _player2HitTime;
 		private int _player1Wins;
 		private int _player2Wins;
+		private bool _gameMode;
 
 		void KinectSensorAllFramesReady(object sender, AllFramesReadyEventArgs e)
 		{
@@ -123,8 +136,10 @@ namespace Kinect9.LightSaber
 			//Assumptions: Player 1 on left side of screen with saber in right hand, Player 2 on right side of screen with saber in left hand
 
 			DrawSaber(trackedSkeleton[0], Sabre1, FightingHand.Right);
+			GameMode = false;
 			if (trackedSkeleton.Count > 1)
 			{
+				GameMode = true;
 				DrawSaber(trackedSkeleton[1], Sabre2, FightingHand.Left);
 				DetectSaberCollision();
 				DetectPlayerHit(trackedSkeleton[0], trackedSkeleton[1], Sabre1, Sabre2);
@@ -229,7 +244,7 @@ namespace Kinect9.LightSaber
 
 		private void PlaySabreSound(List<double> previousPositions)
 		{
-			var soundPlayer = new SoundPlayer("lightsabre.wav");
+			var soundPlayer = new SoundPlayer(@"Resources\lightsabre.wav");
 			soundPlayer.Play();
 			previousPositions.Clear();
 		}
@@ -239,7 +254,7 @@ namespace Kinect9.LightSaber
 			if (Sabre1.X2 > Sabre2.X2 &&
 				 ((Sabre1.Y2 > Sabre2.Y1 && Sabre1.Y2 < Sabre2.Y2) || (Sabre1.Y2 < Sabre2.Y1 && Sabre1.Y2 > Sabre2.Y2)))
 			{
-				var soundPlayer = new SoundPlayer("clash.wav");
+				var soundPlayer = new SoundPlayer(@"Resources\clash.wav");
 				soundPlayer.Play();
 				_previousSabre1PositionX.Clear();
 				_previousSabre2PositionX.Clear();

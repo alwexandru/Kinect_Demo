@@ -4,12 +4,16 @@
         Title="MainWindow" Loaded="MainWindowLoaded"
         DataContext="{Binding RelativeSource={RelativeSource Self}}" 
         SizeToContent="WidthAndHeight" >
+        <Window.Resources>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibility"/>
+        </Window.Resources>
     <StackPanel>
         <TextBlock Text="Jedi Smash" FontSize="30" HorizontalAlignment="Center"/>
         <TextBlock Text="{Binding Message}" FontSize="30" Foreground="Red" HorizontalAlignment="Center"/>
         <Canvas Height="960" Width="1280" x:Name="SkeletonCanvas" >
             <Image Height="960" Width="1280" Source="{Binding ImageSource}"/>
-            <Border CornerRadius="5" Canvas.Left="20" Canvas.Top="20" BorderThickness="5" BorderBrush="Red">
+            <Border CornerRadius="5" Canvas.Left="20" Canvas.Top="20" BorderThickness="5" BorderBrush="Red" 
+                Visibility="{Binding GameMode, Converter={StaticResource BooleanToVisibility}}">
                 <ProgressBar Width="400" Height="30" Maximum="5" Minimum="0" Value="{Binding Player1Strength}">
                     <ProgressBar.Foreground>
                         <LinearGradientBrush StartPoint="0,.5" EndPoint="1,.5">
@@ -20,8 +24,9 @@
                 </ProgressBar>
             </Border>
 
-            <Border CornerRadius="5" Canvas.Left="850" Canvas.Top="20" BorderThickness="5" BorderBrush="Blue">
-                <ProgressBar Width="400" Height="30" Maximum="5" Minimum="0" Value="{Binding Player2Strength}">
+            <Border CornerRadius="5" Canvas.Left="850" Canvas.Top="20" BorderThickness="5" BorderBrush="Blue"
+                Visibility="{Binding GameMode, Converter={StaticResource BooleanToVisibility}}">
+                <ProgressBar Width="400" Height="30" Maximum="5" Minimum="0" Value="{Binding Player2Strength}" >
                     <ProgressBar.Foreground>
                         <LinearGradientBrush StartPoint="0,.5" EndPoint="1,.5">
                             <GradientStop Color="RoyalBlue" Offset="0" />
@@ -31,11 +36,13 @@
                 </ProgressBar>
             </Border>
             
-            <TextBlock Text="{Binding Player1Wins, StringFormat='\{0\} Wins'}" Canvas.Left="40" Canvas.Top="10" FontSize="40" Foreground="White"/>
-            <TextBlock Text="{Binding Player2Wins, StringFormat='\{0\} Wins'}" Canvas.Left="870" Canvas.Top="10" FontSize="40" Foreground="White"/>
+            <TextBlock Text="{Binding Player1Wins, StringFormat='\{0\} Wins'}" Canvas.Left="40" Canvas.Top="10" FontSize="40" Foreground="White"
+                Visibility="{Binding GameMode, Converter={StaticResource BooleanToVisibility}}"/>
+            <TextBlock Text="{Binding Player2Wins, StringFormat='\{0\} Wins'}" Canvas.Left="870" Canvas.Top="10" FontSize="40" Foreground="White"
+                Visibility="{Binding GameMode, Converter={StaticResource BooleanToVisibility}}"/>
 
             <!--Sabre1-->
-            <Line x:Name="Sabre1" Stroke="IndianRed" StrokeThickness="15" >
+            <Line x:Name="Sabre1" Stroke="IndianRed" StrokeThickness="50" >
                 <Line.Effect>
                     <BlurEffect Radius="80" KernelType="Gaussian"/>
                 </Line.Effect>
@@ -44,7 +51,7 @@
                 X2="{Binding ElementName=Sabre1, Path=X2, Mode=OneWay}" 
                 Y1="{Binding ElementName=Sabre1, Path=Y1, Mode=OneWay}" 
                 Y2="{Binding ElementName=Sabre1, Path=Y2, Mode=OneWay}" 
-                Stroke="IndianRed" StrokeThickness="10" >
+                Stroke="IndianRed" StrokeThickness="40" >
                 <Line.Effect>
                     <BlurEffect Radius="35" KernelType="Gaussian"/>
                 </Line.Effect>
@@ -53,10 +60,10 @@
                 X2="{Binding ElementName=Sabre1, Path=X2, Mode=OneWay}" 
                 Y1="{Binding ElementName=Sabre1, Path=Y1, Mode=OneWay}" 
                 Y2="{Binding ElementName=Sabre1, Path=Y2, Mode=OneWay}" 
-                Stroke="Red" StrokeThickness="2" />
+                Stroke="Red" StrokeThickness="6" />
 
             <!--Sabre2-->
-            <Line x:Name="Sabre2" Stroke="LightBlue" StrokeThickness="15" >
+            <Line x:Name="Sabre2" Stroke="LightBlue" StrokeThickness="50" >
                 <Line.Effect>
                     <BlurEffect Radius="80" KernelType="Gaussian"/>
                 </Line.Effect>
@@ -65,7 +72,7 @@
                 X2="{Binding ElementName=Sabre2, Path=X2, Mode=OneWay}" 
                 Y1="{Binding ElementName=Sabre2, Path=Y1, Mode=OneWay}" 
                 Y2="{Binding ElementName=Sabre2, Path=Y2, Mode=OneWay}" 
-                Stroke="SkyBlue" StrokeThickness="10" >
+                Stroke="SkyBlue" StrokeThickness="40" >
                 <Line.Effect>
                     <BlurEffect Radius="35" KernelType="Gaussian"/>
                 </Line.Effect>
@@ -74,7 +81,7 @@
                 X2="{Binding ElementName=Sabre2, Path=X2, Mode=OneWay}" 
                 Y1="{Binding ElementName=Sabre2, Path=Y1, Mode=OneWay}" 
                 Y2="{Binding ElementName=Sabre2, Path=Y2, Mode=OneWay}" 
-                Stroke="Blue" StrokeThickness="2" />
+                Stroke="Blue" StrokeThickness="6" />
 
         </Canvas>
     </StackPanel>
