@@ -110,6 +110,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="clash.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="lightsabre.wav">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

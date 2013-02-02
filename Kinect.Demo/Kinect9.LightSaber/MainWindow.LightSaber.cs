@@ -69,9 +69,14 @@ namespace Kinect9.LightSaber
 			if (!trackedSkeleton.Any())
 				return;
 
+			//Assumptions: Player 1 on left side of screen with saber in right hand, Player 2 on right side of screen with saber in left hand
+
 			DrawSaber(trackedSkeleton[0], Sabre1, FightingHand.Right);
 			if (trackedSkeleton.Count > 1)
+			{
 				DrawSaber(trackedSkeleton[1], Sabre2, FightingHand.Left);
+				DetectSaberCollision();
+			}
 		}
 
 		private void DrawSaber(Skeleton skeleton, Line sabre, FightingHand fightingHand)
@@ -114,8 +119,8 @@ namespace Kinect9.LightSaber
 				handAngleInDegrees = handAngleInRadian * 180 / Math.PI;
 			}
 
-			if (( fightingHand==FightingHand.Right && (wrist.X < elbow.X ))
-			    || (fightingHand==FightingHand.Left && (wrist.X<elbow.X || wrist.Y>elbow.Y)))
+			if ((fightingHand == FightingHand.Right && (wrist.X < elbow.X))
+				 || (fightingHand == FightingHand.Left && (wrist.X < elbow.X || wrist.Y > elbow.Y)))
 				handAngleInDegrees = 180 + handAngleInDegrees;
 			//Message = string.Format("{0}, {1}, {2}", elbow.Y, wrist.Y, handAngleInDegrees.ToString());	
 
@@ -140,13 +145,12 @@ namespace Kinect9.LightSaber
 			sabre.X2 = sabre.X1 + sabreLength * Math.Cos(rotationAngleOffsetInRadians);
 			sabre.Y2 = sabre.Y1 - sabreLength * Math.Sin(rotationAngleOffsetInRadians);
 
-
-			PlaySabreSoundOnWave(sabre, fightingHand==FightingHand.Right?_previousSabre1PositionX:_previousSabre2PositionX);
+			PlaySabreSoundOnWave(sabre, fightingHand == FightingHand.Right ? _previousSabre1PositionX : _previousSabre2PositionX);
 		}
 
 		private void PlaySabreSoundOnWave(Line sabre, List<double> previousPositions)
 		{
-			if(!previousPositions.Any())
+			if (!previousPositions.Any())
 			{
 				previousPositions.Add(sabre.X2);
 				return;
@@ -163,7 +167,7 @@ namespace Kinect9.LightSaber
 			}
 			else
 			{
-				if (sabre.X2 >(previousPositions.Max() + minimumDistanceForSoundEffect))
+				if (sabre.X2 > (previousPositions.Max() + minimumDistanceForSoundEffect))
 					PlaySabreSound(previousPositions);
 			}
 			previousPositions.Add(sabre.X2);
@@ -174,6 +178,18 @@ namespace Kinect9.LightSaber
 			var soundPlayer = new SoundPlayer("lightsabre.wav");
 			soundPlayer.Play();
 			previousPositions.Clear();
+		}
+
+		private void DetectSaberCollision()
+		{
+			if (Sabre1.X2 > Sabre2.X2 &&
+				 ((Sabre1.Y2 > Sabre2.Y1 && Sabre1.Y2 < Sabre2.Y2) || (Sabre1.Y2 < Sabre2.Y1 && Sabre1.Y2 > Sabre2.Y2)))
+			{
+				var soundPlayer = new SoundPlayer("clash.wav");
+				soundPlayer.Play();
+				_previousSabre1PositionX.Clear();
+				_previousSabre2PositionX.Clear();
+			}
 		}
 	}
 
