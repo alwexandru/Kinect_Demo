@@ -6,12 +6,33 @@ using System.Windows.Media.Imaging;
 using System.Linq;
 using System.Windows.Shapes;
 using Microsoft.Kinect;
+using Utility;
 
 namespace Kinect9.LightSaber
 {
 	public partial class MainWindow
 	{
-		private const int SabrePositionCount = 20;
+		public int Player1Strength
+		{
+			get { return _player1Strength; }
+			set
+			{
+				if (value.Equals(_player1Strength)) return;
+				_player1Strength = value;
+				PropertyChanged.Raise(() => Player1Strength);
+			}
+		}
+
+		public int Player2Strength
+		{
+			get { return _player2Strength; }
+			set
+			{
+				if (value.Equals(_player2Strength)) return;
+				_player2Strength = value;
+				PropertyChanged.Raise(() => Player2Strength);
+			}
+		}
 
 		private void Initialize()
 		{
@@ -29,12 +50,17 @@ namespace Kinect9.LightSaber
 																});
 			_previousSabre1PositionX = new List<double>();
 			_previousSabre2PositionX = new List<double>();
+			ResetPlayerStrength();
 			_kinectSensor.Start();
 			Message = "Kinect connected";
 		}
 
+		private const int SabrePositionCount = 20;
+		private const ColorImageFormat ColorFormat = ColorImageFormat.RgbResolution640x480Fps30;
 		private Skeleton[] _skeletons;
 		private List<double> _previousSabre1PositionX, _previousSabre2PositionX;
+		private int _player1Strength, _player2Strength;
+		private DateTime _player1HitTime, _player2HitTime;
 
 		void KinectSensorAllFramesReady(object sender, AllFramesReadyEventArgs e)
 		{
@@ -76,6 +102,7 @@ namespace Kinect9.LightSaber
 			{
 				DrawSaber(trackedSkeleton[1], Sabre2, FightingHand.Left);
 				DetectSaberCollision();
+				DetectPlayerHit(trackedSkeleton[0],trackedSkeleton[1],Sabre1,Sabre2);
 			}
 		}
 
@@ -106,9 +133,9 @@ namespace Kinect9.LightSaber
 
 			var mapper = new CoordinateMapper(_kinectSensor);
 
-			var wrist = mapper.MapSkeletonPointToColorPoint(jointWrist.Position, ColorImageFormat.RgbResolution640x480Fps30);
-			var elbow = mapper.MapSkeletonPointToColorPoint(jointElbow.Position, ColorImageFormat.RgbResolution640x480Fps30);
-			var hand = mapper.MapSkeletonPointToColorPoint(jointHand.Position, ColorImageFormat.RgbResolution640x480Fps30);
+			var wrist = mapper.MapSkeletonPointToColorPoint(jointWrist.Position, ColorFormat);
+			var elbow = mapper.MapSkeletonPointToColorPoint(jointElbow.Position, ColorFormat);
+			var hand = mapper.MapSkeletonPointToColorPoint(jointHand.Position, ColorFormat);
 
 			double handAngleInDegrees;
 			if (elbow.X == wrist.X)
@@ -190,6 +217,52 @@ namespace Kinect9.LightSaber
 				_previousSabre1PositionX.Clear();
 				_previousSabre2PositionX.Clear();
 			}
+		}
+
+		void ResetPlayerStrength()
+		{
+			Player1Strength = 5;
+			Player2Strength = 5;
+		}
+
+		private void DetectPlayerHit(Skeleton skeleton1, Skeleton skeleton2, Line sabre1, Line sabre2)
+		{
+			var player1RightShoulder = skeleton1.Joints[JointType.ShoulderRight];
+			var player1Head = skeleton1.Joints[JointType.Head];
+
+			var player2LeftShoulder = skeleton2.Joints[JointType.ShoulderLeft];
+			var player2Head = skeleton2.Joints[JointType.Head];
+
+			if(player1Head.TrackingState==JointTrackingState.NotTracked || player1RightShoulder.TrackingState==JointTrackingState.NotTracked
+				||player2Head.TrackingState==JointTrackingState.NotTracked || player2LeftShoulder.TrackingState==JointTrackingState.NotTracked)
+				return;
+
+			var coordinateMapper = new CoordinateMapper(_kinectSensor);
+
+			//player 1 got hit
+			if (sabre2.X2 < coordinateMapper.MapSkeletonPointToColorPoint(player1RightShoulder.Position, ColorFormat).X
+			    && sabre2.Y2 > coordinateMapper.MapSkeletonPointToColorPoint(player1Head.Position, ColorFormat).Y)
+			{
+				if(_player1HitTime.AddSeconds(1)<DateTime.Now)
+				{
+					Player1Strength--;
+					_player1HitTime = DateTime.Now;
+				}
+			}
+
+			//player 2 got hit
+			if (sabre1.X2 > coordinateMapper.MapSkeletonPointToColorPoint(player2LeftShoulder.Position, ColorFormat).X
+			    && sabre1.Y2 > coordinateMapper.MapSkeletonPointToColorPoint(player2Head.Position, ColorFormat).Y)
+			{
+				if(_player2HitTime.AddSeconds(1)<DateTime.Now)
+				{
+					Player2Strength--;
+					_player2HitTime = DateTime.Now;
+				}
+			}
+
+			if(Player1Strength<=0 || Player2Strength<=0)
+				ResetPlayerStrength();
 		}
 	}
 
