@@ -101,17 +101,20 @@ namespace Kinect9.LightSaber
 				handAngleInDegrees = handAngleInRadian*180/Math.PI;
 			}
 
-			//Message = string.Format("{0}, {1}, {2}",RightElbow.Y, RightWrist.Y, handAngleInDegrees.ToString());
+			//Message = string.Format("{0}, {1}, {2}", RightElbow.Y, RightWrist.Y, handAngleInDegrees.ToString());
 
-			const int magicFudgeNumber = 90;
-			var rotationAngleOffsetInDegrees = handAngleInDegrees - magicFudgeNumber;
+			if (handAngleInDegrees < 0 && RightWrist.X < RightElbow.X)
+				handAngleInDegrees = 180 + handAngleInDegrees;
+
+			const int magicFudgeNumber = 45;
+			var rotationAngleOffsetInDegrees = handAngleInDegrees + magicFudgeNumber;
 			var rotationAngleOffsetInRadians = rotationAngleOffsetInDegrees * Math.PI / 180;
 			Sabre.X1 = ((double)RightWrist.X + RightHand.X) / 2;
 			Sabre.Y1 = ((double)RightWrist.Y + RightHand.Y) / 2;
 
 			const int sabreLength = 250;
-			Sabre.X2 = Sabre.X1 - sabreLength * Math.Cos(rotationAngleOffsetInRadians);
-			Sabre.Y2 = Sabre.Y1 + sabreLength * Math.Sin(rotationAngleOffsetInRadians);
+			Sabre.X2 = Sabre.X1 + sabreLength * Math.Cos(rotationAngleOffsetInRadians);
+			Sabre.Y2 = Sabre.Y1 - sabreLength * Math.Sin(rotationAngleOffsetInRadians);
 
 			if (_previousSabrePositionX.Count >= SabrePositionCount)
 				_previousSabrePositionX.RemoveAt(0);
