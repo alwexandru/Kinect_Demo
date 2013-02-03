@@ -6,15 +6,7 @@
         SizeToContent="WidthAndHeight">
     <StackPanel>
         <TextBlock Text="Audio Fundamentals" FontSize="30" HorizontalAlignment="Center"/>
-        <TextBlock Text="{Binding Message}" FontSize="30" Foreground="Red" HorizontalAlignment="Center"/>
-        <Rectangle Width="300" Height="20">
-            <Rectangle.Fill>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                    <GradientStop Offset="0" Color="Black"/>
-                    <GradientStop Offset="{Binding BeamAngle}" Color="Orange"/>
-                    <GradientStop Offset="1" Color="Black"/>
-                </LinearGradientBrush>
-            </Rectangle.Fill>
-        </Rectangle>
+        <TextBlock Text="{Binding Message}" FontSize="30" Foreground="Red" HorizontalAlignment="Center" x:Name="MessageTextBlock"/>
+        <Image Height="480" Width="640" Source="{Binding ImageSource}" x:Name="CameraStream"/>
     </StackPanel>
 </Window>

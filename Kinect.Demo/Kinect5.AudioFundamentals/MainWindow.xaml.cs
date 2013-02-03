@@ -2,6 +2,8 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using Microsoft.Kinect;
 using Utility;
 
@@ -11,6 +13,18 @@ namespace Kinect5.AudioFundamentals
 	{
 		private KinectSensor _kinectSensor;
 		private string _message;
+		private ImageSource _imageSource;
+
+		public ImageSource ImageSource
+		{
+			get { return _imageSource; }
+			set
+			{
+				if (value.Equals(_imageSource)) return;
+				_imageSource = value;
+				PropertyChanged.Raise(() => ImageSource);
+			}
+		}
 
 		public MainWindow()
 		{
@@ -25,6 +39,24 @@ namespace Kinect5.AudioFundamentals
 				if (value.Equals(_message)) return;
 				_message = value;
 				PropertyChanged.Raise(() => Message);
+			}
+		}
+
+		void KinectSensorAllFramesReady(object sender, AllFramesReadyEventArgs e)
+		{
+			using (var frame = e.OpenColorImageFrame())
+			{
+				if (frame == null)
+					return;
+
+				var pixelData = new byte[frame.PixelDataLength];
+				frame.CopyPixelDataTo(pixelData);
+				if (ImageSource == null)
+					ImageSource = new WriteableBitmap(frame.Width, frame.Height, 96, 96,
+							PixelFormats.Bgr32, null);
+
+				var stride = frame.Width * PixelFormats.Bgr32.BitsPerPixel / 8;
+				ImageSource = BitmapSource.Create(frame.Width, frame.Height, 96, 96, PixelFormats.Bgr32, null, pixelData, stride);
 			}
 		}
 
@@ -87,6 +119,8 @@ namespace Kinect5.AudioFundamentals
 				_kinectSensor.Stop();
 			_kinectSensor.Dispose();
 			_kinectSensor = null;
+			_speechRecognizer.RecognizeAsyncCancel();
+			_speechRecognizer.RecognizeAsyncStop();
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;
