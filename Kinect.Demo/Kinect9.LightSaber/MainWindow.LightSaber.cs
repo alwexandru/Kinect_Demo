@@ -154,12 +154,20 @@ namespace Kinect9.LightSaber
 					HulkMode = true;
 					break;
 				case "SMASH":
-					if (HulkMode)
-					{
-						var storyboard = (Storyboard) FindResource("Smash");
-						storyboard.Begin();
-					}
+					HulkSmash();
 					break;
+			}
+		}
+
+		private void HulkSmash()
+		{
+			if (HulkMode)
+			{
+				var soundPlayer = new SoundPlayer(@"Resources\smash.wav");
+				soundPlayer.Play();
+				var storyboard = (Storyboard)FindResource("Smash");
+				storyboard.Begin();
+				Player2Strength = 1;
 			}
 		}
 
@@ -293,17 +301,17 @@ namespace Kinect9.LightSaber
 			if (inHulkMode)
 			{
 				//alredy have player 1 right hand info
-				Canvas.SetLeft(RightHandImage,hand.X-RightHandImage.ActualWidth/2);
-				Canvas.SetTop(RightHandImage,hand.Y-RightHandImage.ActualHeight/2);
+				Canvas.SetLeft(RightHandImage, hand.X - RightHandImage.ActualWidth / 2);
+				Canvas.SetTop(RightHandImage, hand.Y - RightHandImage.ActualHeight / 2);
 				var anticlockwiseAngle = 360 - handAngleInDegrees;
-				RightHandImage.RenderTransform = new RotateTransform( anticlockwiseAngle,RightHandImage.ActualWidth/2,RightHandImage.ActualHeight/2);
+				RightHandImage.RenderTransform = new RotateTransform(anticlockwiseAngle, RightHandImage.ActualWidth / 2, RightHandImage.ActualHeight / 2);
 
 				var headJoint = skeleton.Joints[JointType.Head];
-				if(headJoint.TrackingState!=JointTrackingState.NotTracked)
+				if (headJoint.TrackingState != JointTrackingState.NotTracked)
 				{
-					var head =mapper.MapSkeletonPointToColorPoint(headJoint.Position,ColorFormat);
-					Canvas.SetLeft(HeadImage,head.X- HeadImage.ActualWidth/2);
-					Canvas.SetTop(HeadImage,head.Y- HeadImage.ActualHeight/2);
+					var head = mapper.MapSkeletonPointToColorPoint(headJoint.Position, ColorFormat);
+					Canvas.SetLeft(HeadImage, head.X - HeadImage.ActualWidth / 2);
+					Canvas.SetTop(HeadImage, head.Y - HeadImage.ActualHeight / 2);
 				}
 			}
 		}
@@ -384,7 +392,7 @@ namespace Kinect9.LightSaber
 			}
 
 			//player 2 got hit
-			if (sabre1.X2 >  coordinateMapper.MapSkeletonPointToColorPoint(player2LeftShoulder.Position, ColorFormat).X
+			if (sabre1.X2 > coordinateMapper.MapSkeletonPointToColorPoint(player2LeftShoulder.Position, ColorFormat).X
 				 && sabre1.Y2 > coordinateMapper.MapSkeletonPointToColorPoint(player2Head.Position, ColorFormat).Y)
 			{
 				if (_player2HitTime.AddSeconds(1) < DateTime.Now)
