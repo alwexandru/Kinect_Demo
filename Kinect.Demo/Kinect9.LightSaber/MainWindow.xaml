@@ -6,12 +6,18 @@
         SizeToContent="WidthAndHeight" >
         <Window.Resources>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibility"/>
+            <Style TargetType="Image" x:Key="HulkImage">
+                <Setter Property="Visibility" Value="{Binding HulkMode, Converter={StaticResource BooleanToVisibility}}"/>
+            </Style>
         </Window.Resources>
     <StackPanel>
         <TextBlock Text="Jedi Smash" FontSize="30" HorizontalAlignment="Center"/>
-        <TextBlock Text="{Binding Message}" FontSize="30" Foreground="Red" HorizontalAlignment="Center"/>
+        <TextBlock Text="{Binding Message}" FontSize="30" Foreground="Red" HorizontalAlignment="Center" x:Name="MessageTextBlock"/>
         <Canvas Height="960" Width="1280" x:Name="SkeletonCanvas" >
             <Image Height="960" Width="1280" Source="{Binding ImageSource}"/>
+            <Image Source="/Resources/head.png" x:Name="HeadImage" Style="{StaticResource HulkImage}"/>
+            <Image Source="/Resources/rightHand.png" x:Name="RightHandImage" Style="{StaticResource HulkImage}"/>
+            <!--Score-->
             <Border CornerRadius="5" Canvas.Left="20" Canvas.Top="20" BorderThickness="5" BorderBrush="Red" 
                 Visibility="{Binding GameMode, Converter={StaticResource BooleanToVisibility}}">
                 <ProgressBar Width="400" Height="30" Maximum="5" Minimum="0" Value="{Binding Player1Strength}">

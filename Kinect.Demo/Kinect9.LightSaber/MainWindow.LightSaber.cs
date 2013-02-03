@@ -1,17 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Media;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Linq;
 using System.Windows.Shapes;
 using Microsoft.Kinect;
+using Microsoft.Speech.Recognition;
 using Utility;
 
 namespace Kinect9.LightSaber
 {
 	public partial class MainWindow
 	{
+		private const int SabrePositionCount = 20;
+		private const ColorImageFormat ColorFormat = ColorImageFormat.RgbResolution640x480Fps30;
+		private Skeleton[] _skeletons;
+		private List<double> _previousSabre1PositionX, _previousSabre2PositionX;
+		private int _player1Strength, _player2Strength, _player1Wins, _player2Wins;
+		private DateTime _player1HitTime, _player2HitTime;
+		private bool _gameMode, _hulkMode;
+		private KinectAudioSource _kinectAudioSource;
+		private SpeechRecognitionEngine _speechRecognizer;
+
 		public int Player1Strength
 		{
 			get { return _player1Strength; }
@@ -67,6 +79,17 @@ namespace Kinect9.LightSaber
 			}
 		}
 
+		public bool HulkMode
+		{
+			get { return _hulkMode; }
+			set
+			{
+				if (value.Equals(_hulkMode)) return;
+				_hulkMode = value;
+				PropertyChanged.Raise(() => HulkMode);
+			}
+		}
+
 		private void Initialize()
 		{
 			if (_kinectSensor == null)
@@ -81,24 +104,70 @@ namespace Kinect9.LightSaber
 																	Prediction = 0.5f,
 																	Smoothing = 0.5f
 																});
+			_speechRecognizer = CreateSpeechRecognizer();
+			_speechRecognizer.SetInputToDefaultAudioDevice();
+			_speechRecognizer.RecognizeAsync(RecognizeMode.Multiple);
+
 			_previousSabre1PositionX = new List<double>();
 			_previousSabre2PositionX = new List<double>();
 			ResetPlayerStrength();
 			Player1Wins = Player2Wins = 0;
 			GameMode = false;
+			HulkMode = false;
+
 			_kinectSensor.Start();
+			_kinectAudioSource = _kinectSensor.AudioSource;
+			_kinectAudioSource.Start();
 			Message = "Kinect connected";
 		}
 
-		private const int SabrePositionCount = 20;
-		private const ColorImageFormat ColorFormat = ColorImageFormat.RgbResolution640x480Fps30;
-		private Skeleton[] _skeletons;
-		private List<double> _previousSabre1PositionX, _previousSabre2PositionX;
-		private int _player1Strength, _player2Strength;
-		private DateTime _player1HitTime, _player2HitTime;
-		private int _player1Wins;
-		private int _player2Wins;
-		private bool _gameMode;
+		private SpeechRecognitionEngine CreateSpeechRecognizer()
+		{
+			var recognizerInfo = GetKinectRecognizer();
+
+			var speechRecognitionEngine = new SpeechRecognitionEngine(recognizerInfo.Id);
+
+			var grammar = new Choices();
+			grammar.Add("hulk");
+			grammar.Add("smash");
+
+			var gb = new GrammarBuilder { Culture = recognizerInfo.Culture };
+			gb.Append(grammar);
+
+			var g = new Grammar(gb);
+
+			speechRecognitionEngine.LoadGrammar(g);
+			speechRecognitionEngine.SpeechRecognized += SreSpeechRecognized;
+
+			return speechRecognitionEngine;
+		}
+
+		private void SreSpeechRecognized(object sender, SpeechRecognizedEventArgs e)
+		{
+			if (e.Result.Confidence < 0.4)
+				return;
+
+			switch (e.Result.Text.ToUpperInvariant())
+			{
+				case "HULK":
+					HulkMode = true;
+					break;
+				case "SMASH":
+					MessageTextBlock.Foreground = Brushes.Red;
+					break;
+			}
+		}
+
+		private static RecognizerInfo GetKinectRecognizer()
+		{
+			Func<RecognizerInfo, bool> matchingFunc = r =>
+			{
+				string value;
+				r.AdditionalInfo.TryGetValue("Kinect", out value);
+				return "True".Equals(value, StringComparison.InvariantCultureIgnoreCase) && "en-US".Equals(r.Culture.Name, StringComparison.InvariantCultureIgnoreCase);
+			};
+			return SpeechRecognitionEngine.InstalledRecognizers().Where(matchingFunc).FirstOrDefault();
+		}
 
 		void KinectSensorAllFramesReady(object sender, AllFramesReadyEventArgs e)
 		{
@@ -135,18 +204,18 @@ namespace Kinect9.LightSaber
 
 			//Assumptions: Player 1 on left side of screen with saber in right hand, Player 2 on right side of screen with saber in left hand
 
-			DrawSaber(trackedSkeleton[0], Sabre1, FightingHand.Right);
+			DrawSaber(trackedSkeleton[0], Sabre1, FightingHand.Right, HulkMode);
 			GameMode = false;
 			if (trackedSkeleton.Count > 1)
 			{
 				GameMode = true;
-				DrawSaber(trackedSkeleton[1], Sabre2, FightingHand.Left);
+				DrawSaber(trackedSkeleton[1], Sabre2, FightingHand.Left, false);
 				DetectSaberCollision();
 				DetectPlayerHit(trackedSkeleton[0], trackedSkeleton[1], Sabre1, Sabre2);
 			}
 		}
 
-		private void DrawSaber(Skeleton skeleton, Line sabre, FightingHand fightingHand)
+		private void DrawSaber(Skeleton skeleton, Line sabre, FightingHand fightingHand, bool inHulkMode)
 		{
 			Joint jointWrist, jointHand, jointElbow;
 
@@ -215,6 +284,23 @@ namespace Kinect9.LightSaber
 			sabre.Y2 = sabre.Y1 - sabreLength * Math.Sin(rotationAngleOffsetInRadians);
 
 			PlaySabreSoundOnWave(sabre, fightingHand == FightingHand.Right ? _previousSabre1PositionX : _previousSabre2PositionX);
+
+			if (inHulkMode)
+			{
+				//alredy have player 1 right hand info
+				Canvas.SetLeft(RightHandImage,2*hand.X-RightHandImage.ActualWidth/2);
+				Canvas.SetTop(RightHandImage,2*hand.Y-RightHandImage.ActualHeight/2);
+				var anticlockwiseAngle = 360 - handAngleInDegrees;
+				RightHandImage.RenderTransform = new RotateTransform( anticlockwiseAngle,RightHandImage.ActualWidth/2,RightHandImage.ActualHeight/2);
+
+				var headJoint = skeleton.Joints[JointType.Head];
+				if(headJoint.TrackingState!=JointTrackingState.NotTracked)
+				{
+					var head =mapper.MapSkeletonPointToColorPoint(headJoint.Position,ColorFormat);
+					Canvas.SetLeft(HeadImage,2*head.X- HeadImage.ActualWidth/2);
+					Canvas.SetTop(HeadImage,2*head.Y- HeadImage.ActualHeight/2);
+				}
+			}
 		}
 
 		private void PlaySabreSoundOnWave(Line sabre, List<double> previousPositions)
