@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Media;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Linq;
 using System.Windows.Shapes;
@@ -153,7 +154,11 @@ namespace Kinect9.LightSaber
 					HulkMode = true;
 					break;
 				case "SMASH":
-					MessageTextBlock.Foreground = Brushes.Red;
+					if (HulkMode)
+					{
+						var storyboard = (Storyboard) FindResource("Smash");
+						storyboard.Begin();
+					}
 					break;
 			}
 		}

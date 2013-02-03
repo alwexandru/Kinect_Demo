@@ -4,12 +4,17 @@
         Title="MainWindow" Loaded="MainWindowLoaded"
         DataContext="{Binding RelativeSource={RelativeSource Self}}" 
         SizeToContent="WidthAndHeight" >
-        <Window.Resources>
-            <BooleanToVisibilityConverter x:Key="BooleanToVisibility"/>
-            <Style TargetType="Image" x:Key="HulkImage">
-                <Setter Property="Visibility" Value="{Binding HulkMode, Converter={StaticResource BooleanToVisibility}}"/>
-            </Style>
-        </Window.Resources>
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibility"/>
+        <Style TargetType="Image" x:Key="HulkImage">
+            <Setter Property="Visibility" Value="{Binding HulkMode, Converter={StaticResource BooleanToVisibility}}"/>
+        </Style>
+        <Storyboard x:Key="Smash" RepeatBehavior="0:0:2">
+            <DoubleAnimation From="0" To="3" Duration="0:0:0.2" Storyboard.TargetName="ColorStream" Storyboard.TargetProperty="(Image.RenderTransform).(RotateTransform.Angle)"/>
+            <DoubleAnimation From="3" To="-3" Duration="0:0:0.2" Storyboard.TargetName="ColorStream" Storyboard.TargetProperty="(Image.RenderTransform).(RotateTransform.Angle)"/>
+            <DoubleAnimation From="-3" To="0" Duration="0:0:0.1" Storyboard.TargetName="ColorStream" Storyboard.TargetProperty="(Image.RenderTransform).(RotateTransform.Angle)"/>
+        </Storyboard>
+    </Window.Resources>
     <StackPanel>
         <TextBlock Text="Jedi Smash" FontSize="30" HorizontalAlignment="Center"/>
         <TextBlock Text="{Binding Message}" FontSize="30" Foreground="Red" HorizontalAlignment="Center" x:Name="MessageTextBlock"/>
@@ -17,7 +22,11 @@
             <Canvas.LayoutTransform>
                 <ScaleTransform ScaleX="2" ScaleY="2"/>
             </Canvas.LayoutTransform>
-            <Image Height="480" Width="640" Source="{Binding ImageSource}"/>
+            <Image Height="480" Width="640" Source="{Binding ImageSource}" x:Name="ColorStream">
+                <Image.RenderTransform>
+                    <RotateTransform Angle="0" CenterX="320" CenterY="240"/>
+                </Image.RenderTransform>
+            </Image>
             <Image Source="/Resources/head.png" x:Name="HeadImage" Style="{StaticResource HulkImage}" Width="110" Height="140"/>
             <Image Source="/Resources/rightHand.png" x:Name="RightHandImage" Style="{StaticResource HulkImage}" Width="110" Height="90"/>
             <!--Score-->
@@ -44,7 +53,7 @@
                     </ProgressBar.Foreground>
                 </ProgressBar>
             </Border>
-            
+
             <TextBlock Text="{Binding Player1Wins, StringFormat='\{0\} Wins'}" Canvas.Left="30" Canvas.Top="10" FontSize="40" Foreground="White"
                 Visibility="{Binding GameMode, Converter={StaticResource BooleanToVisibility}}"/>
             <TextBlock Text="{Binding Player2Wins, StringFormat='\{0\} Wins'}" Canvas.Left="430" Canvas.Top="10" FontSize="40" Foreground="White"
