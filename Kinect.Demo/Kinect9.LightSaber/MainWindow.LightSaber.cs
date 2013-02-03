@@ -276,8 +276,8 @@ namespace Kinect9.LightSaber
 			var rotationAngleOffsetInRadians = rotationAngleOffsetInDegrees * Math.PI / 180;
 
 			//All measurements scaled to twice the size
-			sabre.X1 = 2 * ((double)wrist.X + hand.X) / 2;
-			sabre.Y1 = 2 * ((double)wrist.Y + hand.Y) / 2;
+			sabre.X1 = ((double)wrist.X + hand.X) / 2;
+			sabre.Y1 = ((double)wrist.Y + hand.Y) / 2;
 
 			const int sabreLength = 350;
 			sabre.X2 = sabre.X1 + sabreLength * Math.Cos(rotationAngleOffsetInRadians);
@@ -288,8 +288,8 @@ namespace Kinect9.LightSaber
 			if (inHulkMode)
 			{
 				//alredy have player 1 right hand info
-				Canvas.SetLeft(RightHandImage,2*hand.X-RightHandImage.ActualWidth/2);
-				Canvas.SetTop(RightHandImage,2*hand.Y-RightHandImage.ActualHeight/2);
+				Canvas.SetLeft(RightHandImage,hand.X-RightHandImage.ActualWidth/2);
+				Canvas.SetTop(RightHandImage,hand.Y-RightHandImage.ActualHeight/2);
 				var anticlockwiseAngle = 360 - handAngleInDegrees;
 				RightHandImage.RenderTransform = new RotateTransform( anticlockwiseAngle,RightHandImage.ActualWidth/2,RightHandImage.ActualHeight/2);
 
@@ -297,8 +297,8 @@ namespace Kinect9.LightSaber
 				if(headJoint.TrackingState!=JointTrackingState.NotTracked)
 				{
 					var head =mapper.MapSkeletonPointToColorPoint(headJoint.Position,ColorFormat);
-					Canvas.SetLeft(HeadImage,2*head.X- HeadImage.ActualWidth/2);
-					Canvas.SetTop(HeadImage,2*head.Y- HeadImage.ActualHeight/2);
+					Canvas.SetLeft(HeadImage,head.X- HeadImage.ActualWidth/2);
+					Canvas.SetTop(HeadImage,head.Y- HeadImage.ActualHeight/2);
 				}
 			}
 		}
@@ -368,8 +368,8 @@ namespace Kinect9.LightSaber
 			var coordinateMapper = new CoordinateMapper(_kinectSensor);
 
 			//player 1 got hit
-			if (sabre2.X2 < 2 * coordinateMapper.MapSkeletonPointToColorPoint(player1RightShoulder.Position, ColorFormat).X
-				 && sabre2.Y2 > 2 * coordinateMapper.MapSkeletonPointToColorPoint(player1Head.Position, ColorFormat).Y)
+			if (sabre2.X2 < coordinateMapper.MapSkeletonPointToColorPoint(player1RightShoulder.Position, ColorFormat).X
+				 && sabre2.Y2 > coordinateMapper.MapSkeletonPointToColorPoint(player1Head.Position, ColorFormat).Y)
 			{
 				if (_player1HitTime.AddSeconds(1) < DateTime.Now)
 				{
@@ -379,8 +379,8 @@ namespace Kinect9.LightSaber
 			}
 
 			//player 2 got hit
-			if (sabre1.X2 > 2 * coordinateMapper.MapSkeletonPointToColorPoint(player2LeftShoulder.Position, ColorFormat).X
-				 && sabre1.Y2 > 2 * coordinateMapper.MapSkeletonPointToColorPoint(player2Head.Position, ColorFormat).Y)
+			if (sabre1.X2 >  coordinateMapper.MapSkeletonPointToColorPoint(player2LeftShoulder.Position, ColorFormat).X
+				 && sabre1.Y2 > coordinateMapper.MapSkeletonPointToColorPoint(player2Head.Position, ColorFormat).Y)
 			{
 				if (_player2HitTime.AddSeconds(1) < DateTime.Now)
 				{
