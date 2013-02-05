@@ -145,7 +145,7 @@ namespace Kinect9.LightSaber
 
 		private void SreSpeechRecognized(object sender, SpeechRecognizedEventArgs e)
 		{
-			if (e.Result.Confidence < 0.4)
+			if (e.Result.Confidence < 0.6)
 				return;
 
 			switch (e.Result.Text.ToUpperInvariant())
@@ -216,6 +216,7 @@ namespace Kinect9.LightSaber
 				return;
 
 			//Assumptions: Player 1 on left side of screen with saber in right hand, Player 2 on right side of screen with saber in left hand
+			trackedSkeleton =trackedSkeleton.OrderBy(s => s.Joints[JointType.Spine].Position.X).ToList();
 
 			DrawSaber(trackedSkeleton[0], Sabre1, FightingHand.Right, HulkMode);
 			GameMode = false;
@@ -288,11 +289,10 @@ namespace Kinect9.LightSaber
 			}
 			var rotationAngleOffsetInRadians = rotationAngleOffsetInDegrees * Math.PI / 180;
 
-			//All measurements scaled to twice the size
 			sabre.X1 = ((double)wrist.X + hand.X) / 2;
 			sabre.Y1 = ((double)wrist.Y + hand.Y) / 2;
 
-			const int sabreLength = 350;
+			const int sabreLength = 250;
 			sabre.X2 = sabre.X1 + sabreLength * Math.Cos(rotationAngleOffsetInRadians);
 			sabre.Y2 = sabre.Y1 - sabreLength * Math.Sin(rotationAngleOffsetInRadians);
 
