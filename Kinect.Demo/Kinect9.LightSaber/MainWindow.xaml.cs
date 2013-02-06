@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
-using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using Microsoft.Kinect;
 using Utility;
 
@@ -29,9 +29,9 @@ namespace Kinect9.LightSaber
 			}
 		}
 
-		private ImageSource _imageSource;
+		private WriteableBitmap _imageSource;
 
-		public ImageSource ImageSource
+		public WriteableBitmap ImageSource
 		{
 			get { return _imageSource; }
 			set

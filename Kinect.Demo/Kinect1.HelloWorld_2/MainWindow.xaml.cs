@@ -23,6 +23,9 @@ namespace Kinect1.HelloWorld_2
 
 			try
 			{
+                newSensor.ColorStream.Enable();
+                newSensor.SkeletonStream.Enable();
+                newSensor.DepthStream.Enable();
 				newSensor.Start();
 			}
 			catch (System.IO.IOException)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Media;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -196,7 +197,8 @@ namespace Kinect9.LightSaber
 							PixelFormats.Bgr32, null);
 
 				var stride = frame.Width * PixelFormats.Bgr32.BitsPerPixel / 8;
-				ImageSource = BitmapSource.Create(frame.Width, frame.Height, 96, 96, PixelFormats.Bgr32, null, pixelData, stride);
+				//ImageSource = BitmapSource.Create(frame.Width, frame.Height, 96, 96, PixelFormats.Bgr32, null, pixelData, stride);
+				ImageSource.WritePixels(new Int32Rect(0, 0, frame.Width, frame.Height), pixelData, stride, 0);
 			}
 
 			using (var frame = e.OpenSkeletonFrame())
