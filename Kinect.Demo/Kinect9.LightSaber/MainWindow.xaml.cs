@@ -6,7 +6,7 @@ using System.Windows.Media.Imaging;
 using Microsoft.Kinect;
 using Utility;
 
-namespace Kinect9.LightSaber
+namespace Kinect9.JediSmash
 {
 	public partial class MainWindow : Window, INotifyPropertyChanged
 	{

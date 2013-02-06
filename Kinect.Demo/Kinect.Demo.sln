@@ -23,7 +23,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kinect8.ServiceHost", "Kine
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kinect8.WindowsPhoneApp", "Kinect8.WindowsPhoneApp\Kinect8.WindowsPhoneApp.csproj", "{630488EE-F909-4001-B444-85E0EBC90E67}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kinect9.LightSaber", "Kinect9.LightSaber\Kinect9.LightSaber.csproj", "{6D541751-13EB-4990-A82A-F7A53B18C3B5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kinect9.JediSmash", "Kinect9.LightSaber\Kinect9.JediSmash.csproj", "{6D541751-13EB-4990-A82A-F7A53B18C3B5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

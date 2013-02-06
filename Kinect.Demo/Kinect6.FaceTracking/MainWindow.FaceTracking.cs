@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -19,9 +20,9 @@ namespace Kinect6.FaceTracking
 		Skeleton[] _skeletonData;
 		private Dictionary<FeaturePoint, Ellipse> _ellipses;
 
-		private ImageSource _imageSource;
+		private WriteableBitmap _imageSource;
 
-		public ImageSource ImageSource
+		public WriteableBitmap ImageSource
 		{
 			get { return _imageSource; }
 			set
@@ -48,7 +49,6 @@ namespace Kinect6.FaceTracking
 
 			Message = "Kinect connected";
 		}
-
 
 		void KinectSensorAllFramesReady(object sender, AllFramesReadyEventArgs e)
 		{
@@ -101,8 +101,7 @@ namespace Kinect6.FaceTracking
 				                                  PixelFormats.Bgr32, null);
 
 			var stride = colorFrame.Width*PixelFormats.Bgr32.BitsPerPixel/8;
-			ImageSource = BitmapSource.Create(colorFrame.Width, colorFrame.Height, 96, 96, PixelFormats.Bgr32, null,
-			                                  _colorPixelData, stride);
+			ImageSource.WritePixels(new Int32Rect(0, 0, colorFrame.Width, colorFrame.Height), _colorPixelData, stride, 0);
 		}
 
 		private void UpdateFace(FaceTrackFrame face)

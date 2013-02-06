@@ -15,9 +15,9 @@ namespace Kinect8.ServiceHost
 		private const int DepthPort = 4532;
 		private const int SkeletonPort = 4533;
 
-		private static DepthListener _depthListener;
+		//private static DepthListener _depthListener;
 		private static ColorListener _videoListener;
-		private static SkeletonListener _skeletonListener;
+		//private static SkeletonListener _skeletonListener;
 
 		private static KinectSensor _kinect;
 
@@ -51,8 +51,8 @@ namespace Kinect8.ServiceHost
 			_kinect = KinectSensor.KinectSensors[0];
 
 			_kinect.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
-			_kinect.DepthStream.Enable(DepthImageFormat.Resolution320x240Fps30);
-			_kinect.SkeletonStream.Enable();
+			//_kinect.DepthStream.Enable(DepthImageFormat.Resolution320x240Fps30);
+			//_kinect.SkeletonStream.Enable();
 
 			_kinect.Start();
 		}
@@ -62,23 +62,23 @@ namespace Kinect8.ServiceHost
 			_videoListener = new ColorListener(_kinect, VideoPort, ImageFormat.Jpeg);
 			_videoListener.Start();
 
-			_depthListener = new DepthListener(_kinect, DepthPort);
-			_depthListener.Start();
+			//_depthListener = new DepthListener(_kinect, DepthPort);
+			//_depthListener.Start();
 
-			_skeletonListener = new SkeletonListener(_kinect, SkeletonPort);
-			_skeletonListener.Start();
+			//_skeletonListener = new SkeletonListener(_kinect, SkeletonPort);
+			//_skeletonListener.Start();
 		}
 
 		private static void CleanupListeners()
 		{
-			if (_depthListener != null)
-				_depthListener.Stop();
+			//if (_depthListener != null)
+			//	_depthListener.Stop();
 
 			if (_videoListener != null)
 				_videoListener.Stop();
 
-			if (_skeletonListener != null)
-				_skeletonListener.Stop();
+			//if (_skeletonListener != null)
+			//	_skeletonListener.Stop();
 		}
 	}
 }

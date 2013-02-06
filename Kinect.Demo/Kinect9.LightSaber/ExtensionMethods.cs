@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Kinect.Toolbox;
 
-namespace Kinect9.LightSaber
+namespace Kinect9.JediSmash
 {
 	public static class ExtensionMethods
 	{

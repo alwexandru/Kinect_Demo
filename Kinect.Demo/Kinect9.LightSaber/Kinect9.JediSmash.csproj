@@ -7,8 +7,8 @@
     <ProjectGuid>{6D541751-13EB-4990-A82A-F7A53B18C3B5}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Kinect9.LightSaber</RootNamespace>
-    <AssemblyName>Kinect9.LightSaber</AssemblyName>
+    <RootNamespace>Kinect9.JediSmash</RootNamespace>
+    <AssemblyName>Kinect9.JediSmash</AssemblyName>
     <TargetFrameworkVersion>v4.0.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>

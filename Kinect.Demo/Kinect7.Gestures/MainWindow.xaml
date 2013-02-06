@@ -5,7 +5,7 @@
         DataContext="{Binding RelativeSource={RelativeSource Self}}" 
         SizeToContent="WidthAndHeight">
     <StackPanel>
-        <TextBlock Text="Gestures And Sample" FontSize="30" HorizontalAlignment="Center"/>
+        <TextBlock Text="Gestures And Postures Sample" FontSize="30" HorizontalAlignment="Center"/>
         <TextBlock Text="{Binding Message}" FontSize="30" Foreground="Red" HorizontalAlignment="Center"/>
         <Canvas Height="480" Width="640" x:Name="SkeletonCanvas" Background="PaleGreen"/>
     </StackPanel>
