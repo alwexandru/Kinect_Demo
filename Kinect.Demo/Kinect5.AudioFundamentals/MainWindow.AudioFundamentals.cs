@@ -53,6 +53,7 @@ Ensure you have the Microsoft Speech SDK installed and configured.",
 			grammar.Add("blue");
 			grammar.Add("Camera on");
 			grammar.Add("Camera off");
+			grammar.Add("Stop");
 
 			var gb = new GrammarBuilder { Culture = recognizerInfo.Culture };
 			gb.Append(grammar);
@@ -86,6 +87,9 @@ Ensure you have the Microsoft Speech SDK installed and configured.",
 					break;
 				case "CAMERA OFF":
 					CameraStream.Visibility = Visibility.Hidden;
+					break;
+				case "STOP":
+					Message = "HAMMER TIME!!";
 					break;
 			}
 		}
