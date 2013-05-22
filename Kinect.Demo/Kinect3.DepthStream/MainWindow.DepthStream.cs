@@ -27,7 +27,7 @@ namespace Kinect3.DepthStream
 				return;
 			_kinectSensor.AllFramesReady += KinectSensorAllFramesReady;
 			_kinectSensor.DepthStream.Enable(DepthImageFormat.Resolution320x240Fps30);
-			//_kinectSensor.SkeletonStream.Enable();
+			_kinectSensor.SkeletonStream.Enable();
 			_kinectSensor.Start();
 			Message = "Kinect connected";
 		}

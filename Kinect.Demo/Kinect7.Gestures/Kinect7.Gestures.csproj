@@ -40,7 +40,7 @@
     <Reference Include="Kinect.Toolbox.Voice">
       <HintPath>..\packages\KinectToolbox.1.2.1.1\lib\Kinect.Toolbox.Voice.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Kinect, Version=1.6.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.Kinect, Version=1.7.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.Kinect.Toolkit.FaceTracking">
       <HintPath>..\packages\KinectToolbox.1.2.1.1\lib\Microsoft.Kinect.Toolkit.FaceTracking.dll</HintPath>
     </Reference>
